@@ -1,0 +1,28 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "description": "{{PROJECT_DESCRIPTION}}",
+  "workspaces": [
+    "src/web-portal",
+    "src/services/*"
+  ],
+  "scripts": {
+    "dev:api": "npm --workspace src/services/api run dev",
+    "dev:web": "npm --workspace src/web-portal run dev",
+    "dev": "npm-run-all --parallel dev:api dev:web",
+    "build": "npm-run-all --parallel build:*",
+    "build:api": "npm --workspace src/services/api run build",
+    "build:web": "npm --workspace src/web-portal run build",
+    "lint": "npm-run-all lint:*",
+    "lint:ts": "tsc --noEmit",
+    "test": "playwright test",
+    "db:migrate": "node ops/scripts/migrate.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^22.0.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.0"
+  }
+}
