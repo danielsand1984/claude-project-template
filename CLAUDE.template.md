@@ -9,9 +9,13 @@
 | Current work & pending tasks | `bd list` (Beads) — or `docs/ACTIVE_TASKS.md` |
 | Completed phases & history | `docs/IMPLEMENTATION_HISTORY.md` |
 | Coding standards | `docs/coding-principles.md` |
+| Architecture decisions log | `docs/adr/` |
 | Architecture (if non-trivial) | `docs/ai-instructions/ARCHITECTURE.md` |
 | Patterns reference | `docs/ai-instructions/PATTERNS.md` |
 | Non-negotiable rules | `docs/ai-instructions/RULES.md` |
+| Required env vars | `.env.example` |
+| Security policy | `SECURITY.md` |
+| Contributing guidelines | `CONTRIBUTING.md` |
 
 ## Architecture
 

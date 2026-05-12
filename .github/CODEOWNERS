@@ -1,0 +1,13 @@
+# CODEOWNERS — automatic review assignment.
+# Each pattern matches files; the last matching pattern wins.
+# See https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+*       @{{REPO_OWNER}}
+
+# Examples (uncomment + customize once you have multiple contributors):
+# /src/services/api/      @backend-team
+# /src/web-portal/        @frontend-team
+# /src/workers/           @platform-team
+# /ops/infra/k8s/         @devops-team
+# /docs/adr/              @architects @{{REPO_OWNER}}

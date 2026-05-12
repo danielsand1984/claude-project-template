@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose a new capability or behavior change
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user need, not the implementation.
+      placeholder: "When I'm doing X, I have to Y, which is painful because Z."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What the experience would look like. UI mockups, API shape, command flags — whatever fits.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you think about? Why is this the right shape?
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Small (a few hours)
+        - Medium (1-2 days)
+        - Large (a week or more)
+        - Don't know yet
+    validations:
+      required: true

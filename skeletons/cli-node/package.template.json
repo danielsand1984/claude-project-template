@@ -11,7 +11,12 @@
     "dev": "tsx src/cli.ts",
     "build": "tsc -p tsconfig.json && node scripts/make-bin.mjs",
     "test": "node --test --import tsx tests/**/*.test.ts",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": ["prettier --write"],
+    "*.{json,md,yml,yaml}": ["prettier --write"]
   },
   "dependencies": {
     "commander": "^12.0.0",
@@ -19,6 +24,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.4.0",
     "tsx": "^4.0.0",
     "typescript": "^5.9.0"
   }

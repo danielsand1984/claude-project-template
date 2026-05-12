@@ -1,0 +1,19 @@
+# gitleaks config — extends the built-in rules with sensible allowlists.
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow .env.example files and obvious placeholder strings"
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.example\..*$''',
+]
+regexes = [
+  '''REPLACE_ME''',
+  '''sk-ant-REPLACE_ME''',
+  '''PLACEHOLDER''',
+  '''dummy''',
+  '''example\.com''',
+]

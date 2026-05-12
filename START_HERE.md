@@ -88,11 +88,18 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
 12. **Customize `docs/coding-principles.md`** if any rule doesn't apply (e.g. drop the `org_id` rule for a single-user CLI).
 13. **Container / k8s readiness** (mandatory for `web-app` / `api`, optional for `cli-*` / `library`):
     - Verify every service in `src/services/` and `src/workers/` has a `Dockerfile` + `.dockerignore`. Skeleton ships these for web-app.
-    - For Next.js: add `output: 'standalone'` to `next.config.ts` (required for the Dockerfile to produce a small image).
+    - For Next.js: `output: 'standalone'` is already set in `next.config.ts`.
     - Rename `WORKER_NAME` placeholder in `ops/infra/k8s/worker-deployment.yml` per worker you have, OR delete the file if no workers.
     - Replace `REGISTRY` and `TAG` in `ops/infra/k8s/*-deployment.yml` with your container registry + tag strategy.
     - **Do NOT commit real secrets** — `secret.example.yml` is illustrative; use Sealed Secrets, External Secrets Operator, or out-of-git values files for production.
     - For CLI projects: keep the `Dockerfile` only if you'll ship the CLI in containers (CI, k8s CronJobs); otherwise delete `Dockerfile` + `.dockerignore`.
+14. **`.env.example`** ships in every skeleton. **Do not commit** real `.env` files (already gitignored). Copy `.env.example` → `.env` during dev setup. For web-app: also copy `src/services/api/.env.example` + `src/web-portal/.env.example` where needed.
+15. **Pre-commit hooks**: shipping with the skeleton.
+    - Node skeletons (`web-app`, `cli-node`): `npm install` runs `husky` via the `prepare` script. Hooks live in `.husky/pre-commit` and call `lint-staged` + optional `gitleaks` secret scan.
+    - Python skeleton (`cli-python`): tell the user to run `pip install pre-commit && pre-commit install` once. `.pre-commit-config.yaml` ships ruff + ruff-format + gitleaks.
+    - Optional: install `gitleaks` system-wide (`brew install gitleaks` / `winget install gitleaks`) for the secret-scan hook to take effect. Without it the hook prints a warning and passes.
+16. **Replace REPO_OWNER + REPO placeholders** in `.github/CODEOWNERS`, `.github/ISSUE_TEMPLATE/config.yml`, `SECURITY.md`, `CHANGELOG.md` with the actual GitHub owner / repo slug (default to the user's GitHub username from `gh auth status`).
+17. **First ADR**: `docs/adr/0001-record-architecture-decisions.md` ships with `{{TODAY}}` filled in. Add ADRs for any non-trivial architectural choice you make during scaffolding (e.g. "we picked Postgres over SQLite because…", "we use raw SQL migrations not Prisma because…"). Number sequentially.
 
 ---
 

@@ -1,0 +1,37 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you see, what did you expect to see?
+      placeholder: |
+        Steps:
+        1. ...
+        2. ...
+
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node/Python version, browser if relevant
+      placeholder: "Windows 11, Node 20.18, Chrome 132"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / error output
+      description: Paste the full error including stack trace. Use code fences.
+      render: shell
+  - type: input
+    id: correlation
+    attributes:
+      label: Correlation ID
+      description: If the bug came from a server response, paste the x-correlation-id header.

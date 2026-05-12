@@ -15,14 +15,25 @@
     "build:api": "npm --workspace src/services/api run build",
     "build:web": "npm --workspace src/web-portal run build",
     "lint": "npm-run-all lint:*",
-    "lint:ts": "tsc --noEmit",
+    "lint:api": "npm --workspace src/services/api run lint",
+    "lint:web": "npm --workspace src/web-portal run lint",
     "test": "playwright test",
-    "db:migrate": "node ops/scripts/migrate.mjs"
+    "db:migrate": "node ops/scripts/migrate.mjs",
+    "db:migrate:status": "node ops/scripts/migrate.mjs --status",
+    "db:seed": "node ops/infra/db/seed.mjs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": ["prettier --write"],
+    "*.{json,md,yml,yaml,css}": ["prettier --write"]
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@types/node": "^22.0.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.2.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.4.0",
     "typescript": "^5.9.0"
   }
 }

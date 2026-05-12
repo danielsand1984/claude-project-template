@@ -1,0 +1,68 @@
+version: 2
+updates:
+  # Top-level npm (root, web-portal, api)
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: ["dependencies", "node"]
+
+  - package-ecosystem: npm
+    directory: "/src/services/api"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: ["dependencies", "node"]
+
+  - package-ecosystem: npm
+    directory: "/src/web-portal"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: ["dependencies", "node"]
+
+  # Python (delete if no workers)
+  - package-ecosystem: pip
+    directory: "/src/workers"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: ["dependencies", "python"]
+
+  # Docker base images
+  - package-ecosystem: docker
+    directory: "/src/services/api"
+    schedule: { interval: weekly, day: monday }
+    labels: ["dependencies", "docker"]
+
+  - package-ecosystem: docker
+    directory: "/src/web-portal"
+    schedule: { interval: weekly, day: monday }
+    labels: ["dependencies", "docker"]
+
+  - package-ecosystem: docker
+    directory: "/src/workers"
+    schedule: { interval: weekly, day: monday }
+    labels: ["dependencies", "docker"]
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly, day: monday }
+    labels: ["dependencies", "ci"]

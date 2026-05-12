@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# Husky pre-commit hook: lint-staged + secret scanning.
+#
+# Runs format + lint on staged files, then gitleaks against the staged diff.
+# If gitleaks isn't installed, the hook still passes (with a warning) so the
+# repo works for contributors who haven't installed it yet.
+
+set -e
+
+npx lint-staged
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner
+else
+  echo "[pre-commit] gitleaks not installed — skipping secret scan."
+  echo "             Install: https://github.com/gitleaks/gitleaks"
+fi
