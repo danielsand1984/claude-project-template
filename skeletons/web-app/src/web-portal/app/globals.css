@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* Tailwind 4 reads theme tokens from `@theme {}` in CSS by default;
+   the `@config` directive above also loads the legacy JS config file
+   so `theme.extend.*` additions there still apply. Pick one home for
+   tokens and stick with it — don't fight the framework. */
 
 /* Add global styles here. Prefer Tailwind utilities in components over
    custom CSS — keep this file small. */

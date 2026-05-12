@@ -1,0 +1,30 @@
+# Dedicated one-shot image for running database migrations.
+# Bakes `pg` into the image so docker-compose doesn't hit the npm registry
+# every time the `migrate` service runs (which previously broke first-run
+# behind corporate proxies / offline / npm outages).
+#
+# Build context: skeletons/web-app/ (project root after scaffold).
+
+FROM node:20.18-alpine
+WORKDIR /workspace
+
+# Install pg once, at build time, not per-run.
+COPY <<'PKG' /workspace/package.json
+{
+  "name": "migrate-runner",
+  "private": true,
+  "type": "module",
+  "dependencies": { "pg": "^8.13.0" }
+}
+PKG
+RUN npm install --no-audit --no-fund --silent
+
+# Copy migration runner + migrations into the image. These are pinned at
+# build time so the same image always runs the same migrations.
+COPY ops/scripts/migrate.mjs /workspace/ops/scripts/migrate.mjs
+COPY ops/infra/db/migrations /workspace/ops/infra/db/migrations
+
+ENV MIGRATIONS_DIR=/workspace/ops/infra/db/migrations
+ENV NODE_ENV=production
+
+CMD ["node", "ops/scripts/migrate.mjs"]

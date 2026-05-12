@@ -33,11 +33,11 @@ spec:
             - configMapRef:
                 name: {{PROJECT_NAME}}-config
           livenessProbe:
-            httpGet: { path: /api/health, port: http }
+            httpGet: { path: /api/health, port: http }   # served by app/api/health/route.ts
             initialDelaySeconds: 15
             periodSeconds: 30
           readinessProbe:
-            httpGet: { path: /api/health, port: http }
+            httpGet: { path: /api/health, port: http }   # served by app/api/health/route.ts
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:

@@ -60,6 +60,16 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          volumeMounts:
+            # readOnlyRootFilesystem: true means the container can't write
+            # anywhere in the image. pg, ioredis reconnect, body parsing,
+            # and tsx/V8 caching all write to /tmp — give it a writable
+            # emptyDir so those don't fail with EROFS.
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: { sizeLimit: 64Mi }
       terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1

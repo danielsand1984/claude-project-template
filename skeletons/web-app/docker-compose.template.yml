@@ -34,21 +34,13 @@ services:
 
   # One-shot DB migration. Runs once at startup, waits for postgres healthy,
   # exits 0 on success. The `api` service waits for this to complete.
+  # `pg` is baked into the image at build time — no per-run npm registry hit.
   migrate:
-    image: node:20.18-alpine
-    working_dir: /workspace
-    volumes:
-      - ./ops:/workspace/ops:ro
-      - migrate-modules:/workspace/node_modules
-    command:
-      - sh
-      - -c
-      - >
-        if [ ! -d node_modules/pg ]; then npm install --no-save --silent pg; fi &&
-        node ops/scripts/migrate.mjs
+    build:
+      context: .
+      dockerfile: ops/Dockerfile.migrate
     environment:
       DATABASE_URL: postgres://{{PROJECT_NAME}}:{{PROJECT_NAME}}@postgres:5432/{{PROJECT_NAME}}
-      MIGRATIONS_DIR: /workspace/ops/infra/db/migrations
     depends_on:
       postgres:
         condition: service_healthy
@@ -66,6 +58,8 @@ services:
       NODE_ENV: development
       CORS_ORIGINS: http://localhost:3002
       AUTH_MODE: dev
+      ALLOW_DEV_AUTH: "true"
+      TRUST_PROXY_HOPS: "1"
     ports:
       - "3000:3000"
     volumes:
@@ -88,7 +82,10 @@ services:
       dockerfile: Dockerfile
       target: dev
     environment:
+      # Browser-facing URL (used in client-side fetches).
       NEXT_PUBLIC_API_URL: http://localhost:3000
+      # Container-internal URL (used in Server Component fetches inside Docker).
+      INTERNAL_API_URL: http://api:3000
       PORT: "3002"
       NODE_ENV: development
     ports:
@@ -131,4 +128,3 @@ volumes:
   api-modules:
   web-modules:
   web-next:
-  migrate-modules:

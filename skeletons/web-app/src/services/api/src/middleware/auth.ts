@@ -33,12 +33,36 @@ export function isPublicRoute(path: string): boolean {
 }
 
 /**
+ * AUTH_MODE is fail-closed: the service refuses to start unless it's
+ * explicitly set. No silent dev-mode default — see B1 in the agent review.
+ */
+type AuthMode = 'dev' | 'oidc';
+
+function resolveAuthMode(): AuthMode {
+  const raw = process.env.AUTH_MODE;
+  if (!raw) {
+    throw new Error(
+      'AUTH_MODE is not set. Set AUTH_MODE=dev (with ALLOW_DEV_AUTH=true) for local dev, ' +
+        'or AUTH_MODE=oidc with OIDC_ISSUER_URL/CLIENT_ID/CLIENT_SECRET in production.',
+    );
+  }
+  const mode = raw.toLowerCase();
+  if (mode !== 'dev' && mode !== 'oidc') {
+    throw new Error(`Unknown AUTH_MODE: "${raw}". Allowed: "dev" | "oidc".`);
+  }
+  return mode;
+}
+
+const AUTH_MODE = resolveAuthMode();
+
+/**
  * Auth middleware. Two modes controlled by AUTH_MODE env var:
  *
- *   - `dev`  (default): credentials provider. Reads `X-Org-Id` and `Authorization: Bearer dev-<userId>`
- *            and resolves them via devCredentialsProvider. Never enable in production.
- *   - `oidc`           : verifies a JWT signed by the configured OIDC issuer.
- *                        (Stub — wire up jose / jsonwebtoken when you adopt a real IdP.)
+ *   - `dev`  : credentials provider. Reads `X-Org-Id` and `Authorization: Bearer dev-<userId>`.
+ *              ALSO requires ALLOW_DEV_AUTH=true and NODE_ENV !== 'production' — see
+ *              devCredentialsProvider for the production safeguards.
+ *   - `oidc` : verifies a JWT signed by the configured OIDC issuer.
+ *              (Stub — wire up jose / jsonwebtoken when you adopt a real IdP.)
  *
  * Requires `X-Org-Id` header on every authenticated request. Returns:
  *   - 401 if the token is missing or invalid
@@ -68,9 +92,8 @@ export async function auth(req: Request, res: Response, next: NextFunction): Pro
   }
 
   try {
-    const mode = (process.env.AUTH_MODE ?? 'dev').toLowerCase();
     const principal =
-      mode === 'oidc'
+      AUTH_MODE === 'oidc'
         ? await verifyOidcToken(token)
         : await devCredentialsProvider(token);
 
@@ -83,10 +106,17 @@ export async function auth(req: Request, res: Response, next: NextFunction): Pro
     };
     next();
   } catch (err) {
-    res.status(401).json({
-      error: err instanceof Error ? err.message : 'Authentication failed',
-      code: 'UNAUTHORIZED',
-    });
+    // Log the real reason internally but never echo it to clients —
+    // JWT errors / dev-user reasons are info disclosure.
+    console.warn(
+      JSON.stringify({
+        level: 'warn',
+        msg: 'auth.rejected',
+        reason: err instanceof Error ? err.message : String(err),
+        correlationId: (req as Request & { correlationId?: string }).correlationId,
+      }),
+    );
+    res.status(401).json({ error: 'Authentication failed', code: 'UNAUTHORIZED' });
   }
 }
 
@@ -106,5 +136,5 @@ async function verifyOidcToken(_token: string): Promise<{
   email?: string;
   isPlatformAdmin?: boolean;
 }> {
-  throw new Error('OIDC verification not implemented — set AUTH_MODE=dev or wire up jose');
+  throw new Error('OIDC verification not implemented — wire up jose against OIDC_ISSUER_URL');
 }

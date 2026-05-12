@@ -1,13 +1,18 @@
 /**
  * Thin typed wrapper around fetch for the BFF API. Conventions:
  *
- *   - Base URL from NEXT_PUBLIC_API_URL (or relative /api/bff via next rewrite).
+ *   - Base URL resolution:
+ *       Server-side (Server Components, route handlers): requires an absolute URL.
+ *         Reads INTERNAL_API_URL (preferred, container-internal) or NEXT_PUBLIC_API_URL.
+ *         Throws if neither is set — fetch cannot parse relative URLs server-side.
+ *       Browser-side: uses NEXT_PUBLIC_API_URL if set, falls back to '/api/bff'
+ *         which Next.js rewrites to the backend (see next.config.ts).
  *   - JSON in, JSON out. Throws ApiError on non-2xx with `{code, status, message, details}`.
- *   - Auth headers are passed by the caller — this client is stateless. The
- *     auth provider (next-auth, your custom hook) owns the token + orgId
- *     and supplies them per request.
+ *   - Auth headers are passed by the caller — this client is stateless. The auth
+ *     provider (next-auth, your custom hook) owns the token + orgId and supplies
+ *     them per request.
  *
- * Use in:
+ * Use:
  *   - Server Components (RSC): `await apiClient({ token, orgId }).get('/v1/recipes')`
  *   - Client Components: same shape, ideally via React Query / SWR.
  */
@@ -15,11 +20,28 @@
 import { ApiError } from './errors.js';
 import type { ApiClientOptions, RequestOptions } from './types.js';
 
-const DEFAULT_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? '/api/bff';
+function resolveBaseUrl(explicit: string | undefined): string {
+  if (explicit) return explicit;
+
+  if (typeof window === 'undefined') {
+    // Server-side: must be absolute. INTERNAL_API_URL (e.g. http://api:3000 in
+    // docker-compose) is preferred; falls back to NEXT_PUBLIC_API_URL.
+    const internal = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL;
+    if (!internal) {
+      throw new Error(
+        'apiClient: server-side fetch requires INTERNAL_API_URL or NEXT_PUBLIC_API_URL ' +
+          '(absolute URL). Set INTERNAL_API_URL=http://api:3000 in docker-compose.',
+      );
+    }
+    return internal;
+  }
+
+  // Browser-side: relative path is fine; Next rewrite handles it.
+  return process.env.NEXT_PUBLIC_API_URL ?? '/api/bff';
+}
 
 export function apiClient(opts: ApiClientOptions = {}) {
-  const baseUrl = opts.baseUrl ?? DEFAULT_BASE_URL;
+  const baseUrl = resolveBaseUrl(opts.baseUrl);
 
   async function request<T>(method: string, path: string, options: RequestOptions = {}): Promise<T> {
     const url = `${baseUrl}${path}`;
