@@ -122,16 +122,24 @@ If install **fails** OR the user said **no** → go to Step 4 (fallback).
   > "Beads is niet geïnstalleerd en auto-install lukte niet (of je koos ervoor over te slaan). Ik gebruik nu `docs/ACTIVE_TASKS.md` als fallback. Wil je later alsnog `bd` installeren, draai `tooling/install-beads.ps1` (Windows) of `tooling/install-beads.sh` (macOS/Linux)."
 - In `CLAUDE.md`, replace any "use `bd`" references with "track tasks in `docs/ACTIVE_TASKS.md` (or migrate to `bd` later)".
 
-### 3c — Install Claude Code skills / agents
-Read `tooling/skills-and-agents.md`. Based on the project type, install or symlink the relevant skills. For example:
-- Web app → `code-reviewer`, `security-engineer`, `accessibility-auditor`, `ux-architect`
-- API → `backend-architect`, `api-tester`
-- Python CLI → `code-reviewer`, `python-formatter` if available
-- Public/marketing site → `seo-specialist`
+### 3c — Install agents (from msitarzewski/agency-agents)
 
-**Ask** before installing — don't dump everything.
+The template bundles `tooling/install-agents.{ps1,sh}` and `tooling/agents-manifest.txt`. The manifest specifies which agents get installed per project type.
 
-After install, **delete `tooling/skills-and-agents.md`**.
+**Run the install script** matching the type chosen in the interview:
+
+- **Windows**: `pwsh -ExecutionPolicy Bypass -File tooling/install-agents.ps1 -Type <type>`
+- **macOS / Linux**: `bash tooling/install-agents.sh --type <type>`
+
+Where `<type>` is one of: `web-app`, `cli-python`, `cli-node`, `api`, `library`.
+
+This downloads ~6–15 agent files (depending on type) into `.claude/agents/`. They become spawnable via the `Agent` tool with `subagent_type: <agent-name>`.
+
+**Then update `CLAUDE.md`** with the project-type-specific enrichment rules (see `CLAUDE.template.md` "Team Lead Mode" section). The rules tell Claude **when** to spawn which agent during work — that's the part that makes the agents actually useful, not just installed.
+
+After install + CLAUDE.md update, **delete**:
+- `tooling/install-agents.ps1`, `tooling/install-agents.sh`, `tooling/agents-manifest.txt` (one-shot)
+- `tooling/skills-and-agents.md` (manual now obsolete)
 
 ### 3d — Optional: run Graphify
 If the user said yes:

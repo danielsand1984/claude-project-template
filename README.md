@@ -3,10 +3,11 @@
 A pre-configured starting point for new coding projects with [Claude Code](https://claude.com/claude-code). Battle-tested conventions, ready-to-use tooling, no opinionated boilerplate dump.
 
 What's inside:
-- **Beads (`bd`)** — issue/task tracker, replaces TODO files
+- **Beads (`bd`)** — issue/task tracker, replaces TODO files (auto-installed during init if missing)
+- **Agents** — curated set of [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) Claude Code subagents, auto-installed per project type, with mandatory "when to spawn which agent" rules in the project `CLAUDE.md`
 - **Graphify** — `/graphify` skill turns any folder into a navigable knowledge graph
 - **Coding principles** — distilled from a production multi-tenant SaaS platform
-- **CLAUDE.md template** — project-level instructions for Claude Code
+- **CLAUDE.md template** — project-level instructions for Claude Code, including a Team Lead Mode that mandates agent enrichment before non-trivial work
 - **Skeletons** — minimal scaffolds for Web App, Python CLI, and Node CLI projects
 - **CI / lint / format** — GitHub Actions, EditorConfig, VSCode settings
 

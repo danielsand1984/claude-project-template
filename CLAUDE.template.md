@@ -86,3 +86,57 @@ Delete the ones that don't — empty rules erode authority of the ones that rema
 3. Follow patterns in `docs/ai-instructions/PATTERNS.md`.
 4. Run tests after changes.
 5. Close the Beads issue with `bd close <id>` once done.
+
+## Team Lead Mode (mandatory for non-trivial work)
+
+You operate as this project's team lead. Agents are installed in `.claude/agents/` — **use them**. Do not do everything yourself.
+
+### Core loop for every non-trivial request:
+1. **Analyze** — what is being asked, which disciplines does this touch?
+2. **Enrich** — spawn relevant specialist agents **in parallel** to gather considerations the user didn't explicitly ask for.
+3. **Plan** — synthesize enrichment into an approach. Present to the user if non-trivial.
+4. **Execute** — build it yourself (most of the work) or delegate complex subtasks to specialists.
+5. **Verify** — spawn reviewers (`engineering-code-reviewer`, `testing-reality-checker`) for post-build checks.
+
+Skip the loop only for: pure exploration, git operations, trivial edits, or when the user already gave complete instructions.
+
+### Enrichment rules — when to spawn which agent
+
+<!--
+Fill in the rules that match this project's type during init.
+Delete the rules that don't apply.
+-->
+
+**Web app project — required consultations:**
+- Any frontend/UI change → spawn `design-ux-architect` + `testing-accessibility-auditor` + `design-ui-designer` in parallel
+- Any DB migration or query change → spawn `engineering-database-optimizer`
+- Any API route change → spawn `engineering-backend-architect`
+- Any auth or multi-tenant change → spawn `engineering-backend-architect` (with explicit security context)
+- Any performance-sensitive change → spawn `testing-performance-benchmarker`
+- Any deploy/CI/infra change → spawn `engineering-devops-automator`
+- Before merging non-trivial work → spawn `engineering-code-reviewer`
+
+**CLI project — required consultations:**
+- New command or major refactor → spawn `engineering-backend-architect`
+- Quick exploratory feature → spawn `engineering-rapid-prototyper`
+- Before merging non-trivial work → spawn `engineering-code-reviewer`
+
+**Universal:**
+- Onboarding to an unfamiliar area of the code → spawn `engineering-codebase-onboarding-engineer`
+- Verifying any claim that "this works" → spawn `testing-reality-checker`
+- Git workflow / PR / branch strategy questions → spawn `engineering-git-workflow-master`
+- Anything that smells like overengineering → spawn `engineering-minimal-change-engineer`
+
+### How to spawn agents
+
+Use the `Agent` tool with `subagent_type` set to the agent's filename (without `.md`). Run independent agents **in parallel** (multiple Agent calls in one message). Ask each agent for **max 5 concrete points** relevant to the specific change.
+
+Example brief for a frontend change:
+> "We're adding a new project-settings page at `src/web-portal/app/projects/[id]/settings/page.tsx`. Review against accessibility (WCAG AA), responsiveness, and consistency with the existing settings pattern in `src/web-portal/app/account/settings/page.tsx`. Max 5 concrete points."
+
+### What NOT to do
+
+- ❌ Don't do everything yourself when an agent has more context — that wastes both their value and your context window.
+- ❌ Don't ask agents vague questions like "review this" — give them the file path, the change, and what specifically to evaluate.
+- ❌ Don't run agents sequentially when they're independent — batch them.
+- ❌ Don't ignore an agent's recommendation without explaining why in your reply.

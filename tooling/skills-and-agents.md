@@ -1,79 +1,61 @@
-# Skills & Agents
+# Agents & Skills
 
-Curated list of Claude Code skills (from [skills.sh](https://skills.sh) or `~/.claude/skills/`) and sub-agents (`~/.claude/agents/`) that pair well with this template.
+## Agents
 
-> During project init, **ask the user before installing**. Don't dump everything — pick what matches the project type from the interview.
+Agents in this template come from [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents). They install into `.claude/agents/` in your project, making them spawnable via Claude's `Agent` tool.
 
-## Universal (almost every project)
+### Install
 
-| Skill / Agent | Why | Trigger |
-|---|---|---|
-| `code-reviewer` (agent) | Reviews diffs for correctness, security, perf | spawn before merge |
-| `graphify` (skill) | Knowledge graph of any folder | `/graphify` |
-| `init` (skill, built-in) | Initialize CLAUDE.md from existing code | `/init` |
-| `simplify` (skill, built-in) | Review changed code for reuse/quality | `/simplify` |
-| `security-review` (skill, built-in) | Security review of pending changes | `/security-review` |
-| `review` (skill, built-in) | Review a PR | `/review` |
+Pick **one** project type and run the matching script:
 
-## Web app projects
+```powershell
+# Windows
+pwsh -ExecutionPolicy Bypass -File tooling/install-agents.ps1 -Type web-app
+```
 
-| Skill / Agent | Why |
-|---|---|
-| `backend-architect` (agent) | API design, system scaling |
-| `frontend-developer` (agent) | React/Next.js implementation |
-| `database-optimizer` (agent) | Schema, indexes, query perf |
-| `ux-architect` (agent) | UX foundations, CSS systems |
-| `ui-designer` (agent) | Visual design, components |
-| `accessibility-auditor` (agent) | WCAG audits |
-| `security-engineer` (agent) | Threat modeling, auth/payment review |
-| `api-tester` (agent) | API validation, contract testing |
-| `performance-benchmarker` (agent) | Load / perf testing |
-| `ux-design-review` (skill) | UX/UI review of a page |
-| `marketing-review` (skill) | Copy/CTA/SEO review of landing pages |
+```bash
+# macOS / Linux
+bash tooling/install-agents.sh --type web-app
+```
 
-## CLI tools
+Valid types: `web-app`, `cli-python`, `cli-node`, `api`, `library`.
 
-| Skill / Agent | Why |
-|---|---|
-| `code-reviewer` (agent) | Diff review |
-| `senior-developer` (agent) | Implementation expertise |
-| `software-architect` (agent) | Module boundaries, patterns |
+### What gets installed
 
-## API / SDK / Library projects
+`tooling/agents-manifest.txt` is the source of truth. It maps each project type to its agent list. All types also get the `common` set (code-reviewer, reality-checker, onboarding-engineer, git-workflow-master, minimal-change-engineer, product-manager).
 
-| Skill / Agent | Why |
-|---|---|
-| `backend-architect` (agent) | Public interface design |
-| `api-tester` (agent) | Contract tests |
-| `claude-api` (skill) | Anthropic SDK / API integration |
+| Type | Adds (on top of common) |
+|------|------------------------|
+| `web-app` | backend-architect, frontend-developer, database-optimizer, devops-automator, ui-designer, ux-architect, accessibility-auditor, api-tester, performance-benchmarker |
+| `cli-python` / `cli-node` | backend-architect, rapid-prototyper |
+| `api` | backend-architect, database-optimizer, api-tester |
+| `library` | backend-architect, minimal-change-engineer, api-tester |
 
-## Marketing / public site
+To add more agents later: edit `agents-manifest.txt` and re-run with `--force`. The repo has many more agents under `marketing/`, `product/`, `specialized/`, `support/`, `paid-media/` etc. — install on demand.
 
-| Skill / Agent | Why |
-|---|---|
-| `seo-specialist` (agent) | Technical SEO, content strategy |
-| `content-creator` (agent) | Copy, editorial |
-| `marketing-review` (skill) | Landing page review |
-| `ads*` (skills) | Paid ad audits + creative generation |
+### Using agents (this is the important part)
 
-## Mobile
+Installing agents is useless if you don't actually spawn them. The project `CLAUDE.md` has a **"Team Lead Mode"** section that mandates when Claude must consult which agent. Keep that section accurate: when a new pattern emerges in this project (e.g. "always consult X for Y"), add a rule there.
 
-| Skill / Agent | Why |
-|---|---|
-| `ads-apple` (skill) | Apple Search Ads if launching on App Store |
+Default behavior: **before** doing non-trivial work, Claude spawns relevant agents in parallel, asks each for max 5 concrete points, then synthesizes.
 
-## Install paths
+## Skills
 
-- **Built-in skills** (anything listed at session start under "Available skills") — nothing to install; just invoke with `/skill-name`.
-- **Custom skills** — drop in `~/.claude/skills/<name>/SKILL.md`.
-- **Sub-agents** — drop in `~/.claude/agents/<name>.md`. Spawn via the `Agent` tool with `subagent_type`.
-- **From skills.sh** — follow the install command shown on the skill's page.
+Built-in Claude Code skills (always available, no install) that pair well with this template:
+
+| Skill | Trigger | When to use |
+|-------|---------|-------------|
+| `/init` | user-typed | Generate `CLAUDE.md` from an existing codebase |
+| `/review` | user-typed | Review a pending PR |
+| `/security-review` | user-typed | Security audit of current branch changes |
+| `/graphify` | user-typed | Knowledge graph of any folder — run before architecture questions |
+| `/simplify` | user-typed | Review changed code for reuse/quality |
+
+Plus skills from [skills.sh](https://skills.sh) and your own custom skills at `~/.claude/skills/` — install on demand.
 
 ## Pointer for Claude
 
-When picking a skill/agent at runtime, prefer:
-1. A built-in skill if it matches exactly.
-2. A sub-agent if the task is open-ended or needs parallel exploration.
-3. Direct tool use (Read/Grep/Edit) for narrow, well-defined tasks.
-
-Don't spawn agents redundantly. If you already know the answer, write the code.
+1. Prefer **spawning an agent** over doing specialist work yourself — agents have focused context and proven processes.
+2. Spawn agents **in parallel** when their work is independent.
+3. Brief each agent with file paths, the specific change, what to evaluate, and a max-5-points cap.
+4. After agents report, **synthesize** — don't dump their output as-is.

@@ -1,0 +1,46 @@
+# Agents manifest — which agents to install per project type
+#
+# Single source of truth for tooling/install-agents.{ps1,sh}
+# Format: <project-type> : <category>/<filename-without-.md>
+# Lines starting with # are comments.
+#
+# Source: https://github.com/msitarzewski/agency-agents
+#
+# Project types: common (always installed), web-app, cli-python, cli-node, api, library
+
+# --- Common (installed for every project type) ---
+common : engineering/engineering-code-reviewer
+common : engineering/engineering-codebase-onboarding-engineer
+common : engineering/engineering-git-workflow-master
+common : engineering/engineering-minimal-change-engineer
+common : testing/testing-reality-checker
+common : product/product-manager
+
+# --- Web app (Next.js + API + optional workers) ---
+web-app : engineering/engineering-backend-architect
+web-app : engineering/engineering-frontend-developer
+web-app : engineering/engineering-database-optimizer
+web-app : engineering/engineering-devops-automator
+web-app : design/design-ui-designer
+web-app : design/design-ux-architect
+web-app : testing/testing-accessibility-auditor
+web-app : testing/testing-api-tester
+web-app : testing/testing-performance-benchmarker
+
+# --- Python CLI ---
+cli-python : engineering/engineering-backend-architect
+cli-python : engineering/engineering-rapid-prototyper
+
+# --- Node CLI ---
+cli-node : engineering/engineering-backend-architect
+cli-node : engineering/engineering-rapid-prototyper
+
+# --- API-only service ---
+api : engineering/engineering-backend-architect
+api : engineering/engineering-database-optimizer
+api : testing/testing-api-tester
+
+# --- Library / SDK ---
+library : engineering/engineering-backend-architect
+library : engineering/engineering-minimal-change-engineer
+library : testing/testing-api-tester
