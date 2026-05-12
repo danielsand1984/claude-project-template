@@ -7,66 +7,70 @@
 #
 # Usage:
 #   .\setup-claude-hint.ps1                          # references the GitHub repo
-#   .\setup-claude-hint.ps1 -LocalPath "D:\..."     # references a local clone path
+#   .\setup-claude-hint.ps1 -LocalPath "D:\..."      # references a local clone path
+#
+# Compatible with Windows PowerShell 5.1 and PowerShell 7+. ASCII-only by
+# design to avoid encoding pitfalls on PS 5.1 (which reads UTF-8 as
+# Windows-1252 unless the file has a BOM).
 
 [CmdletBinding()]
 param(
     [string]$LocalPath = "",
-    [string]$RepoSlug = "danielsand1984/claude-project-template"
+    [string]$RepoSlug  = "danielsand1984/claude-project-template"
 )
 
 $ErrorActionPreference = 'Stop'
 
-$ClaudeDir  = Join-Path $HOME ".claude"
-$ClaudeFile = Join-Path $ClaudeDir "CLAUDE.md"
+$ClaudeDir   = Join-Path $HOME ".claude"
+$ClaudeFile  = Join-Path $ClaudeDir "CLAUDE.md"
 $MarkerStart = '<!-- BEGIN claude-project-template hint -->'
 $MarkerEnd   = '<!-- END claude-project-template hint -->'
 
-# Build the hint body
+# Source description + usage snippet
 if ($LocalPath) {
-    $Source = "local clone at ``$LocalPath``"
-    $UsageCopy = @"
-   ``Copy-Item ""$LocalPath/*"" ""<target>"" -Recurse -Force``
-"@
+    $SourceDesc = 'local clone at `' + $LocalPath + '`'
+    $UsageLine1 = '   `Copy-Item "' + $LocalPath + '/*" "<target>" -Recurse -Force`'
+    $UsageLine2 = ''
 } else {
-    $Source = "GitHub repo ``$RepoSlug``"
-    $UsageCopy = @"
-   ``gh repo create <project-name> --template $RepoSlug --public --clone`` (creates a new repo)
-   or ``npx degit $RepoSlug <project-name>`` (just downloads files, no git history)
-"@
+    $SourceDesc = 'GitHub repo `' + $RepoSlug + '`'
+    $UsageLine1 = '   `gh repo create <project-name> --template ' + $RepoSlug + ' --public --clone` (creates a new repo)'
+    $UsageLine2 = '   or `npx degit ' + $RepoSlug + ' <project-name>` (just downloads files, no git history)'
 }
 
-$HintBody = @"
-$MarkerStart
-# Project template (claude-project-template)
+# One single string array — no `+=` operations, guaranteed flat.
+$HintLines = New-Object System.Collections.Generic.List[string]
+$HintLines.Add($MarkerStart)
+$HintLines.Add('# Project template (claude-project-template)')
+$HintLines.Add('')
+$HintLines.Add('A pre-configured project starter is available (' + $SourceDesc + '). It contains:')
+$HintLines.Add('- `START_HERE.md` -- an interview playbook for initializing a new project')
+$HintLines.Add('- `CLAUDE.template.md`, `.gitignore`, `.editorconfig`, `.vscode/`, `.github/workflows/`')
+$HintLines.Add('- `docs/coding-principles.md` + `docs/ai-instructions/` (RULES, PATTERNS, ARCHITECTURE, TECH_STACK)')
+$HintLines.Add('- `tooling/` -- Beads (`bd`), Graphify, curated Claude Code skills/agents per project type')
+$HintLines.Add('- `skeletons/` -- `web-app/`, `cli-python/`, `cli-node/`')
+$HintLines.Add('')
+$HintLines.Add('## When to mention it')
+$HintLines.Add('')
+$HintLines.Add('If the user starts a new project (says "new project", "ik wil X bouwen", "start a project", or is in an empty folder under a coding-projects directory), BEFORE asking your own clarifying questions, ask:')
+$HintLines.Add('')
+$HintLines.Add('> "Wil je van `claude-project-template` starten? Daar staan Beads, Graphify, coding principles en skeletons al klaar."')
+$HintLines.Add('')
+$HintLines.Add('If yes:')
+$HintLines.Add('1. Get the template into the project folder:')
+$HintLines.Add($UsageLine1)
+if ($UsageLine2) { $HintLines.Add($UsageLine2) }
+$HintLines.Add('2. Open `<target>/START_HERE.md` and follow it step-by-step. It contains the full interview script, scaffolding rules, tooling-init steps, and a cleanup checklist.')
+$HintLines.Add('3. Use Beads (`bd init --stealth`) for task tracking -- never TodoWrite or markdown TODO files for projects scaffolded from this template.')
+$HintLines.Add('')
+$HintLines.Add('If no, proceed with your own approach but still default to: `bd` for tasks, small files (under 200 lines), structured logs, parameterized SQL, no untyped boundaries.')
+$HintLines.Add('')
+$HintLines.Add('## Do NOT')
+$HintLines.Add('')
+$HintLines.Add('- Do not silently scaffold without mentioning the template -- the user probably forgot it exists.')
+$HintLines.Add('- Do not ignore `START_HERE.md` after copying -- it has specific cleanup steps (delete `skeletons/`, `START_HERE.md`, replace `{{PLACEHOLDERS}}`, rename `.template.*` files).')
+$HintLines.Add($MarkerEnd)
 
-A pre-configured project starter is available ($Source). It contains:
-- ``START_HERE.md`` — an interview playbook for initializing a new project
-- ``CLAUDE.template.md``, ``.gitignore``, ``.editorconfig``, ``.vscode/``, ``.github/workflows/``
-- ``docs/coding-principles.md`` + ``docs/ai-instructions/`` (RULES, PATTERNS, ARCHITECTURE, TECH_STACK)
-- ``tooling/`` — Beads (``bd``), Graphify, curated Claude Code skills/agents per project type
-- ``skeletons/`` — ``web-app/``, ``cli-python/``, ``cli-node/``
-
-## When to mention it
-
-If the user starts a new project (says "new project", "ik wil X bouwen", "start a project", or is in an empty folder under a coding-projects directory), **before** asking your own clarifying questions, ask:
-
-> "Wil je van ``claude-project-template`` starten? Daar staan Beads, Graphify, coding principles en skeletons al klaar."
-
-If yes:
-1. Get the template into the project folder:
-$UsageCopy
-2. Open ``<target>/START_HERE.md`` and **follow it step-by-step**. It contains the full interview script, scaffolding rules, tooling-init steps, and a cleanup checklist.
-3. Use Beads (``bd init --stealth``) for task tracking — never TodoWrite or markdown TODO files for projects scaffolded from this template.
-
-If no, proceed with your own approach but still default to: ``bd`` for tasks, small files (<200 lines), structured logs, parameterized SQL, no untyped boundaries.
-
-## Do NOT
-
-- Don't silently scaffold without mentioning the template — the user probably forgot it exists.
-- Don't ignore ``START_HERE.md`` after copying — it has specific cleanup steps (delete ``skeletons/``, ``START_HERE.md``, replace ``{{PLACEHOLDERS}}``, rename ``.template.*`` files).
-$MarkerEnd
-"@
+$HintBody = [string]::Join("`r`n", $HintLines)
 
 # Ensure the directory exists
 if (-not (Test-Path $ClaudeDir)) {
@@ -76,26 +80,32 @@ if (-not (Test-Path $ClaudeDir)) {
 # Read existing content (or start empty)
 if (Test-Path $ClaudeFile) {
     $Existing = Get-Content $ClaudeFile -Raw
+    if ($null -eq $Existing) { $Existing = '' }
 } else {
-    $Existing = ""
+    $Existing = ''
 }
 
 # Strip any previous block between markers (idempotent re-run)
 $Pattern = [regex]::Escape($MarkerStart) + '[\s\S]*?' + [regex]::Escape($MarkerEnd)
 $Cleaned = [regex]::Replace($Existing, $Pattern, '').TrimEnd()
 
-# Append fresh block
-$NewContent = if ($Cleaned) { $Cleaned + "`n`n" + $HintBody + "`n" } else { $HintBody + "`n" }
+# Compose new content
+if ([string]::IsNullOrEmpty($Cleaned)) {
+    $NewContent = $HintBody + "`r`n"
+} else {
+    $NewContent = $Cleaned + "`r`n`r`n" + $HintBody + "`r`n"
+}
 
+# Write with UTF-8
 Set-Content -Path $ClaudeFile -Value $NewContent -NoNewline -Encoding UTF8
 
-Write-Host ""
-Write-Host "✓ Hint installed in $ClaudeFile" -ForegroundColor Green
+Write-Host ''
+Write-Host "[OK] Hint installed in $ClaudeFile" -ForegroundColor Green
 if ($LocalPath) {
-    Write-Host "  Pointing to local path: $LocalPath" -ForegroundColor DarkGray
+    Write-Host "     Pointing to local path: $LocalPath" -ForegroundColor DarkGray
 } else {
-    Write-Host "  Pointing to GitHub repo: $RepoSlug" -ForegroundColor DarkGray
+    Write-Host "     Pointing to GitHub repo: $RepoSlug" -ForegroundColor DarkGray
 }
-Write-Host ""
-Write-Host "Next time you start Claude Code in an empty project folder and say"
+Write-Host ''
+Write-Host 'Next time you start Claude Code in an empty project folder and say'
 Write-Host "'I want to build X', Claude will suggest the template first."
