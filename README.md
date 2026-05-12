@@ -12,17 +12,32 @@ What's inside:
 
 ## Prerequisites
 
-| Tool | Required for | Install |
+**Required:**
+
+| Tool | For | Install |
 |---|---|---|
-| [Claude Code](https://claude.com/claude-code) | The interview-driven init flow (`START_HERE.md`) | follow Anthropic install docs |
-| [Beads (`bd`)](https://github.com/steveasleep/beads) | Task tracking | `brew install steveasleep/beads/beads` or grab a release binary |
+| [Claude Code](https://claude.com/claude-code) | The interview-driven init flow | follow Anthropic install docs |
 | `git` | Version control | system package manager |
 | Node 20+ or Python 3.11+ | Depending on the skeleton you pick | nvm / pyenv / system |
 
-Optional:
-- `gh` (GitHub CLI) — to create a new repo from this template in one command
-- `npx` — to use `degit` instead of GitHub Template
-- Graphify is bundled with Claude Code via a custom skill; no separate install
+**Optional (template falls back gracefully when missing):**
+
+| Tool | What you gain | What you lose without it |
+|---|---|---|
+| **Beads (`bd`)** | First-class task tracker with dependency graph | Fall back to a markdown checklist in `docs/ACTIVE_TASKS.md` |
+| `gh` (GitHub CLI) | One-command repo creation from template | Just use `git clone` or `degit` |
+| `npx` | `degit` for clean downloads without git history | Use clone + `rm -rf .git` |
+
+Graphify is bundled with Claude Code as a custom skill — no separate install needed.
+
+### Installing Beads (recommended but not required)
+
+`bd` is a standalone CLI. It's not bundled in this template because the binary is ~37 MB plus a Dolt dependency, and platform-specific. If you skip it, the init flow auto-detects this and falls back to `docs/ACTIVE_TASKS.md` — no crash.
+
+To install it, follow the instructions at the [Beads release page](https://github.com/) (or wherever your team gets `bd` from). Verify with:
+```bash
+bd --version
+```
 
 ## How to use
 

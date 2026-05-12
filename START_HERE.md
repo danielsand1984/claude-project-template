@@ -81,13 +81,28 @@ git commit -m "chore: initial scaffold from _template"
 ```
 If the user provided a remote URL, add it and push.
 
-### 3b — Init Beads (always, unless user said no)
+### 3b — Init Beads (if available, else fall back to ACTIVE_TASKS.md)
+
+**First check whether `bd` is installed** before trying to init:
+
 ```bash
-bd init --stealth
+bd --version
 ```
-- Add `.beads/` to `.gitignore` (already in the template gitignore).
-- Read `tooling/beads-setup.md` for context, then **delete `tooling/beads-setup.md`** — the user doesn't need the manual once it's set up.
-- Create the first three issues based on the interview: usually "Set up dev environment", "Implement core flow X", "Add CI gate". Use `bd create`.
+
+**If `bd` is available** (exit code 0):
+- Run `bd init --stealth`.
+- `.beads/` is already gitignored.
+- Read `tooling/beads-setup.md` for context, then **delete `tooling/beads-setup.md`**.
+- Create 3 seed issues from the interview — typically "Set up dev environment", "Implement core flow X", "Add CI gate". Use `bd create -t task -p high "..."`.
+- Delete `docs/ACTIVE_TASKS.template.md` — Beads is the task tracker now.
+
+**If `bd` is NOT available** (command not found / non-zero exit):
+- **Do not crash, do not install anything automatically.**
+- Rename `docs/ACTIVE_TASKS.template.md` → `docs/ACTIVE_TASKS.md` and write the 3 seed tasks there as a markdown checklist.
+- Tell the user clearly:
+  > "Beads (`bd`) is niet geïnstalleerd — ik gebruik nu `docs/ACTIVE_TASKS.md` als fallback. Wil je later `bd` installeren (zie `tooling/beads-setup.md`), dan kun je de taken handmatig overzetten met `bd create`."
+- Keep `tooling/beads-setup.md` (don't delete it — user might install bd later).
+- In `CLAUDE.md`, replace any "use `bd`" references with "track tasks in `docs/ACTIVE_TASKS.md` (or migrate to `bd` later)".
 
 ### 3c — Install Claude Code skills / agents
 Read `tooling/skills-and-agents.md`. Based on the project type, install or symlink the relevant skills. For example:
@@ -112,14 +127,15 @@ This produces `graphify-out/` — already gitignored.
 ## Phase 4 — Verify
 
 1. Run the formatter/linter that ships with the skeleton — must pass on the empty scaffold.
-2. Run `bd status` — must show your seed issues.
+2. **If `bd` was installed**: run `bd status` — must show your seed issues. **If not**: open `docs/ACTIVE_TASKS.md` and confirm the seed tasks are listed.
 3. Run `git status` — must be clean.
 4. Open the project's `README.md` and confirm placeholders are gone.
 
 Report back to the user with:
 - What was set up
 - What was deleted
-- The first issue from `bd status` they should pick up
+- Whether Beads is active or whether you fell back to `ACTIVE_TASKS.md`
+- The first task they should pick up
 
 ---
 
