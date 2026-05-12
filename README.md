@@ -32,9 +32,14 @@ Graphify is bundled with Claude Code as a custom skill — no separate install n
 
 ### Installing Beads (recommended but not required)
 
-`bd` is a standalone CLI. It's not bundled in this template because the binary is ~37 MB plus a Dolt dependency, and platform-specific. If you skip it, the init flow auto-detects this and falls back to `docs/ACTIVE_TASKS.md` — no crash.
+`bd` is a standalone CLI from [gastownhall/beads](https://github.com/gastownhall/beads). Not bundled here because the binaries are platform-specific and total ~160 MB with the Dolt storage backend. If you skip it, the init flow falls back to `docs/ACTIVE_TASKS.md` — no crash.
 
-To install it, follow the instructions at the [Beads release page](https://github.com/) (or wherever your team gets `bd` from). Verify with:
+Quick install (latest release):
+- **Windows**: download `beads_<version>_windows_amd64.zip` from [releases](https://github.com/gastownhall/beads/releases/latest), extract `bd.exe` + `dolt.exe` to `%USERPROFILE%\.beads\bin\`, add to `PATH`.
+- **macOS**: `curl -L https://github.com/gastownhall/beads/releases/latest/download/beads_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/').tar.gz | tar -xz -C ~/.beads/bin/`
+- **Linux**: same as macOS, `linux_amd64` / `linux_arm64`.
+
+Verify:
 ```bash
 bd --version
 ```

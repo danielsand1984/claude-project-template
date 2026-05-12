@@ -1,6 +1,6 @@
 # Beads (`bd`) setup
 
-[Beads](https://github.com/) is an issue/dependency tracker that lives next to your code. It replaces TODO files, sticky notes, and GitHub issues for small/personal projects.
+[Beads](https://github.com/gastownhall/beads) is an issue/dependency tracker that lives next to your code. It replaces TODO files, sticky notes, and GitHub issues for small/personal projects.
 
 > **Optional.** If `bd` is not installed on this machine, the template's init flow automatically falls back to `docs/ACTIVE_TASKS.md` — a plain markdown checklist. You can install `bd` later and migrate the tasks manually with `bd create`.
 
