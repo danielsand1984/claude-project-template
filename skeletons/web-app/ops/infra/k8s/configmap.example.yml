@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-config
+data:
+  # Non-secret config. Copy + commit per environment (dev/staging/prod)
+  # OR generate from Helm values / Kustomize overlays.
+  LOG_LEVEL: "info"
+  CORS_ORIGINS: "https://example.com"
+  # Database / Redis hosts go here when using managed services where the host
+  # is non-secret. Credentials (passwords, tokens) belong in the Secret.
+  DATABASE_HOST: "REPLACE_ME.postgres.database.azure.com"
+  REDIS_HOST: "REPLACE_ME.redis.cache.windows.net"

@@ -35,3 +35,14 @@ npm run dev -- hello
 npm test
 npm run build && ./bin/{{project_name}}.js hello
 ```
+
+## Container (optional but provided)
+
+A `Dockerfile` ships with the skeleton for running the CLI in CI, k8s CronJobs, or any environment without local Node. Multi-stage, non-root, pinned to `node:20.18-alpine`.
+
+```bash
+docker build -t {{PROJECT_NAME}} .
+docker run --rm {{PROJECT_NAME}} --help
+```
+
+Delete the Dockerfile + `.dockerignore` if you have no use for it (pure local dev).

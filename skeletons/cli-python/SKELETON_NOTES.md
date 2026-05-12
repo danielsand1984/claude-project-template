@@ -33,3 +33,14 @@ pip install -e ".[dev]"
 pytest -q
 ruff check . && ruff format .
 ```
+
+## Container (optional but provided)
+
+A `Dockerfile` ships with the skeleton for running the CLI in CI, k8s CronJobs, or any environment without local Python. Multi-stage, non-root, pinned to `python:3.11-slim`.
+
+```bash
+docker build -t <your-cli-name> .
+docker run --rm <your-cli-name> --help
+```
+
+Delete the Dockerfile + `.dockerignore` if you have no use for it (pure local dev).

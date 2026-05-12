@@ -46,14 +46,15 @@ Delete the ones that don't — empty rules erode authority of the ones that rema
 
 1. **Files under 200 lines** — split when larger; classes under 5 public methods.
 2. **No `any` types** in TypeScript — use Zod / typed schemas at boundaries.
-3. **Parameterized SQL only** — never interpolate user input. (Delete if no DB.)
-4. **Every query includes `org_id`** — multi-tenant isolation. (Delete if single-tenant.)
-5. **All UI text through `t('key', 'Fallback')`** — support i18n from day one. (Delete if no UI or English-only by design.)
-6. **Forward-only migrations** — never modify existing migration files. (Delete if no DB migrations.)
-7. **Soft delete only** — use `deleted_at`, never hard delete. (Delete if not applicable.)
-8. **Structured logs** — JSON with correlation IDs. Never log secrets.
-9. **Use `bd` for tasks** — never create TODO.md files or use TodoWrite.
-10. **Update docs after structural changes** — `INDEX.md` in each service.
+3. **Containerized + k8s-ready** — every service has a multi-stage Dockerfile, runs as non-root, exposes `/healthz` + `/readyz`, takes config via env, logs to stdout. `docker compose up` brings up the full stack. (Delete if pure local CLI/script.)
+4. **Parameterized SQL only** — never interpolate user input. (Delete if no DB.)
+5. **Every query includes `org_id`** — multi-tenant isolation. (Delete if single-tenant.)
+6. **All UI text through `t('key', 'Fallback')`** — support i18n from day one. (Delete if no UI or English-only by design.)
+7. **Forward-only migrations** — never modify existing migration files. (Delete if no DB migrations.)
+8. **Soft delete only** — use `deleted_at`, never hard delete. (Delete if not applicable.)
+9. **Structured logs** — JSON to stdout with correlation IDs. Never log secrets.
+10. **Use `bd` for tasks** — never create TODO.md files or use TodoWrite.
+11. **Update docs after structural changes** — `INDEX.md` in each service.
 
 ## Key Patterns
 

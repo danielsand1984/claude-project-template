@@ -86,6 +86,13 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
     - For `web-app` / `api`: keep them and fill in placeholders.
 11. **Fix the test stub import** (cli-python only): update `tests/test_hello.py` to import from your renamed package.
 12. **Customize `docs/coding-principles.md`** if any rule doesn't apply (e.g. drop the `org_id` rule for a single-user CLI).
+13. **Container / k8s readiness** (mandatory for `web-app` / `api`, optional for `cli-*` / `library`):
+    - Verify every service in `src/services/` and `src/workers/` has a `Dockerfile` + `.dockerignore`. Skeleton ships these for web-app.
+    - For Next.js: add `output: 'standalone'` to `next.config.ts` (required for the Dockerfile to produce a small image).
+    - Rename `WORKER_NAME` placeholder in `ops/infra/k8s/worker-deployment.yml` per worker you have, OR delete the file if no workers.
+    - Replace `REGISTRY` and `TAG` in `ops/infra/k8s/*-deployment.yml` with your container registry + tag strategy.
+    - **Do NOT commit real secrets** — `secret.example.yml` is illustrative; use Sealed Secrets, External Secrets Operator, or out-of-git values files for production.
+    - For CLI projects: keep the `Dockerfile` only if you'll ship the CLI in containers (CI, k8s CronJobs); otherwise delete `Dockerfile` + `.dockerignore`.
 
 ---
 

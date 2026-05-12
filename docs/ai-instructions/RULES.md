@@ -23,8 +23,11 @@ Non-negotiable rules. Violations must be flagged and fixed immediately.
 ## Operations
 
 11. **Migration Safety**: Forward-only. Never modify existing migration files. Wrap in `BEGIN; ... COMMIT;`.
-12. **Structured Logging**: JSON format with correlation IDs. Never log secrets.
+12. **Structured Logging**: JSON format with correlation IDs to stdout/stderr. Never log secrets.
 13. **Idempotent Workers**: Workers are stateless and horizontally scalable. Process messages idempotently.
+14. **Containerized**: Every service and worker has a multi-stage `Dockerfile`, runs as non-root, accepts config via env vars. CLI tools include a Dockerfile as a convenience.
+15. **K8s-ready**: HTTP services expose `/healthz` (liveness) and `/readyz` (readiness with DB/Redis check). Handle `SIGTERM` gracefully. Disk is ephemeral; state goes to Postgres / object storage.
+16. **`docker compose up`** brings up the full stack (infra + services) — anyone can run it without local language toolchains.
 
 ## Documentation
 

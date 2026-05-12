@@ -9,6 +9,7 @@ What's inside:
 - **Coding principles** — distilled from a production multi-tenant SaaS platform
 - **CLAUDE.md template** — project-level instructions for Claude Code, including a Team Lead Mode that mandates agent enrichment before non-trivial work
 - **Skeletons** — minimal scaffolds for Web App, Python CLI, and Node CLI projects
+- **Container / K8s-ready out of the box** — every service ships a multi-stage `Dockerfile`, `/healthz` + `/readyz` endpoints, graceful SIGTERM handling, full-stack `docker-compose.yml`, and Kubernetes manifest stubs with probes, resource limits, and non-root securityContext
 - **CI / lint / format** — GitHub Actions, EditorConfig, VSCode settings
 
 ## Prerequisites

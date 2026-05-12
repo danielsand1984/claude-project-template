@@ -9,11 +9,65 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{PROJECT_NAME}}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./src/services/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://{{PROJECT_NAME}}:{{PROJECT_NAME}}@postgres:5432/{{PROJECT_NAME}}
+      REDIS_URL: redis://redis:6379
+      PORT: "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./src/web-portal
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      PORT: "3002"
+    ports:
+      - "3002:3002"
+    depends_on:
+      - api
+
+  # Add one block per Python worker. Build context is the worker's folder,
+  # which must contain its own Dockerfile + requirements.txt.
+  # ai-worker:
+  #   build:
+  #     context: ./src/workers/ai-worker
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     DATABASE_URL: postgres://{{PROJECT_NAME}}:{{PROJECT_NAME}}@postgres:5432/{{PROJECT_NAME}}
+  #     REDIS_URL: redis://redis:6379
+  #     ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
 
 volumes:
   postgres-data:
