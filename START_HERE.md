@@ -56,18 +56,32 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
 
 1. **Copy the chosen skeleton contents** into the project root (not into a subfolder). Use `Copy-Item` / `cp -r`.
 2. **Delete** the `skeletons/` folder and any unused skeleton — the project should have **no leftover unused code**.
-3. **Rename placeholders** throughout the codebase:
-   - `{{PROJECT_NAME}}` → kebab-case project name
+3. **Read then delete** `SKELETON_NOTES.md` (it ships with each skeleton as a guide for this step; not part of the project).
+4. **Rename placeholders** throughout the file contents:
+   - `{{PROJECT_NAME}}` → kebab-case project name (e.g. `mssql-healthcheck`)
+   - `{{project_name}}` → snake_case slug (Python only; e.g. `mssql_healthcheck`)
    - `{{PROJECT_TITLE}}` → human-readable title
    - `{{PROJECT_DESCRIPTION}}` → one-sentence description
    - `{{AUTHOR_NAME}}` → from `git config user.name`
    - `{{AUTHOR_EMAIL}}` → from `git config user.email` or the user's email in memory
    - `{{YEAR}}` → current year
-4. **Copy `CLAUDE.template.md` → `CLAUDE.md`** at project root and fill in placeholders based on the interview. Keep sections that apply; **delete sections that don't** (don't leave empty stubs).
-5. **Rename template config files**: `package.template.json` → `package.json`, `pyproject.template.toml` → `pyproject.toml`, `ci.template.yml` → `ci.yml`.
-6. **Update `docs/`**:
-   - Customize `docs/coding-principles.md` if any rule doesn't apply (e.g. drop the `org_id` rule for a single-user CLI).
-   - Initialize `docs/ACTIVE_TASKS.md` from the template.
+5. **Rename folders with placeholders** (Python skeleton has one):
+   - `src/{{project_name}}/` → `src/<your-snake_case-slug>/`
+6. **Rename template config files**:
+   - `package.template.json` → `package.json` (also in workspace subfolders)
+   - `pyproject.template.toml` → `pyproject.toml`
+   - `ci.template.yml` → `ci.yml`
+   - `docker-compose.template.yml` → `docker-compose.yml` (web-app only)
+7. **Rename docs templates**:
+   - `docs/ACTIVE_TASKS.template.md` → `docs/ACTIVE_TASKS.md`
+   - `docs/IMPLEMENTATION_HISTORY.template.md` → `docs/IMPLEMENTATION_HISTORY.md`
+8. **Copy `CLAUDE.template.md` → `CLAUDE.md`** at project root and fill in placeholders + customize based on the interview. Keep sections that apply; **delete sections that don't** (don't leave empty stubs). Delete `CLAUDE.template.md` after.
+9. **Write a fresh `README.md`** based on the interview. The template's root `README.md` describes the template itself, not your project — replace it with a project-specific one (name, what it does, install, use, develop, license).
+10. **Trim `docs/ai-instructions/`**:
+    - For `cli-python` / `cli-node` / `library`: delete `ARCHITECTURE.md` and `TECH_STACK.md` (overkill for these). Update `docs/ai-instructions/INDEX.md` to reflect what remains.
+    - For `web-app` / `api`: keep them and fill in placeholders.
+11. **Fix the test stub import** (cli-python only): update `tests/test_hello.py` to import from your renamed package.
+12. **Customize `docs/coding-principles.md`** if any rule doesn't apply (e.g. drop the `org_id` rule for a single-user CLI).
 
 ---
 

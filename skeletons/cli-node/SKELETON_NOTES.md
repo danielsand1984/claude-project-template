@@ -1,4 +1,6 @@
-# Node CLI Skeleton
+# cli-node skeleton — notes for the init flow
+
+> **Delete this file** after scaffolding. It exists only to guide `START_HERE.md` Phase 2.
 
 Commander-based CLI in TypeScript. Compiles to a single shebanged `bin/{{project_name}}.js`.
 
@@ -22,6 +24,7 @@ tests/
 
 - Rename `{{PROJECT_NAME}}` / `{{project_name}}` to your slug (kebab-case).
 - Rename `package.template.json` → `package.json`.
+- **Write a fresh `README.md`** based on the interview (the template README got overwritten by this skeleton's README in earlier versions).
 - Choose distribution: `npm publish`, `npx`, or `npm link` for local dev.
 
 ## Dev commands
