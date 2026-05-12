@@ -6,6 +6,6 @@ Don't write entries for every commit — git log already does that. Write entrie
 
 ---
 
-## {{YYYY-MM-DD}} — Initial scaffold
+## {{TODAY}} — Initial scaffold
 
-Scaffolded from `_template/`. Stack: {{STACK_SUMMARY}}. First milestone: {{FIRST_MILESTONE}}.
+Scaffolded from `claude-project-template`. Stack: {{STACK_SUMMARY}}. First milestone: {{FIRST_MILESTONE}}.

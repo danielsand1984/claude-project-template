@@ -65,6 +65,9 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
    - `{{AUTHOR_NAME}}` → from `git config user.name`
    - `{{AUTHOR_EMAIL}}` → from `git config user.email` or the user's email in memory
    - `{{YEAR}}` → current year
+   - `{{TODAY}}` → today's date in `YYYY-MM-DD`
+   - `{{STACK_SUMMARY}}` → one-line stack (e.g. "Python 3.11 + Typer + Rich")
+   - `{{FIRST_MILESTONE}}` → first concrete deliverable from the interview
 5. **Rename folders with placeholders** (Python skeleton has one):
    - `src/{{project_name}}/` → `src/<your-snake_case-slug>/`
 6. **Rename template config files**:
@@ -76,6 +79,7 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
    - `docs/ACTIVE_TASKS.template.md` → `docs/ACTIVE_TASKS.md`
    - `docs/IMPLEMENTATION_HISTORY.template.md` → `docs/IMPLEMENTATION_HISTORY.md`
 8. **Copy `CLAUDE.template.md` → `CLAUDE.md`** at project root and fill in placeholders + customize based on the interview. Keep sections that apply; **delete sections that don't** (don't leave empty stubs). Delete `CLAUDE.template.md` after.
+   - **Do NOT copy code blocks from `docs/ai-instructions/PATTERNS.md` into CLAUDE.md** — the "Key Patterns" section should link to PATTERNS.md, not duplicate it. If a pattern is project-specific (not in PATTERNS.md), put the canonical version in PATTERNS.md and link from CLAUDE.md.
 9. **Write a fresh `README.md`** based on the interview. The template's root `README.md` describes the template itself, not your project — replace it with a project-specific one (name, what it does, install, use, develop, license).
 10. **Trim `docs/ai-instructions/`**:
     - For `cli-python` / `cli-node` / `library`: delete `ARCHITECTURE.md` and `TECH_STACK.md` (overkill for these). Update `docs/ai-instructions/INDEX.md` to reflect what remains.
@@ -125,7 +129,7 @@ If install **fails** OR the user said **no** → go to Step 4 (fallback).
 - Run `bd init --stealth`.
 - `.beads/` is already gitignored.
 - Read `tooling/beads-setup.md` for context, then **delete** `tooling/beads-setup.md`, `tooling/install-beads.ps1`, `tooling/install-beads.sh`.
-- Create 3 seed issues from the interview — typically "Set up dev environment", "Implement core flow X", "Add CI gate". Use `bd create -t task -p high "..."`.
+- Create 3 seed issues from the interview — typically "Set up dev environment", "Implement core flow X", "Add CI gate". Use `bd create -t task -p P0 "..."` (priority must be `P0`–`P4`, NOT `high`/`medium`/`low`).
 - Delete `docs/ACTIVE_TASKS.template.md` — Beads is the task tracker now.
 
 **Step 4 — Fallback (when `bd` is unavailable):**

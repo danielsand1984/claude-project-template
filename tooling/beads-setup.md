@@ -24,10 +24,10 @@ bd init --stealth
 After init, create the first few issues from the project interview. Example:
 
 ```bash
-bd create -t task -p high "Set up dev environment (Docker, env vars, seed data)"
-bd create -t task -p high "Implement <core flow>"
-bd create -t task -p medium "Add CI lint + test gates"
-bd create -t task -p low "Write README quickstart"
+bd create -t task -p P0 "Set up dev environment (Docker, env vars, seed data)"
+bd create -t task -p P0 "Implement <core flow>"
+bd create -t task -p P1 "Add CI lint + test gates"
+bd create -t task -p P2 "Write README quickstart"
 ```
 
 ## Daily workflow
@@ -37,13 +37,13 @@ bd list                              # what's open
 bd show <id>                         # detail
 bd update <id> -s in_progress        # start work
 bd close <id>                        # done
-bd create -t bug -p high "<title>"   # capture a bug as you discover it
+bd create -t bug -p P0 "<title>"     # capture a bug as you discover it
 ```
 
 ## Conventions
 
 - **Type**: `task`, `bug`, `feature`, `chore`, `epic`.
-- **Priority**: `low`, `medium`, `high`, `critical`. Default to `medium`.
+- **Priority**: `P0` (critical) · `P1` (high) · `P2` (medium, default) · `P3` (low) · `P4` (lowest). Pass as `-p P0` — **do not** pass `-p high` or `-p medium`, `bd` rejects word priorities.
 - **Title style**: Imperative, concise — "Fix auth redirect loop", not "Auth is broken".
 - **Dependencies**: Use `bd update <id> --blocks <other-id>` when relationships matter.
 

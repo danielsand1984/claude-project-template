@@ -57,7 +57,14 @@ Delete the ones that don't — empty rules erode authority of the ones that rema
 
 ## Key Patterns
 
-<!-- Add only the patterns that are non-obvious AND repeated. -->
+<!--
+DO NOT duplicate patterns that already live in `docs/ai-instructions/PATTERNS.md`.
+Either link to them ("See PATTERNS.md → Route Factory") or put the canonical
+description here AND delete the section from PATTERNS.md.
+Single source of truth. No copy-paste.
+-->
+
+See [`docs/ai-instructions/PATTERNS.md`](docs/ai-instructions/PATTERNS.md) for the canonical pattern reference (route factories, request context, queue consumer, DB conventions). Only document **project-specific** patterns in this CLAUDE.md.
 
 ## Development Commands
 
