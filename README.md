@@ -30,19 +30,24 @@ What's inside:
 
 Graphify is bundled with Claude Code as a custom skill — no separate install needed.
 
-### Installing Beads (recommended but not required)
+### Installing Beads (handled automatically)
 
-`bd` is a standalone CLI from [gastownhall/beads](https://github.com/gastownhall/beads). Not bundled here because the binaries are platform-specific and total ~160 MB with the Dolt storage backend. If you skip it, the init flow falls back to `docs/ACTIVE_TASKS.md` — no crash.
+`bd` is a standalone CLI from [gastownhall/beads](https://github.com/gastownhall/beads). **You don't have to install it manually** — when you run `START_HERE.md`, Claude will detect that `bd` is missing and offer to install it automatically using the bundled scripts:
 
-Quick install (latest release):
-- **Windows**: download `beads_<version>_windows_amd64.zip` from [releases](https://github.com/gastownhall/beads/releases/latest), extract `bd.exe` + `dolt.exe` to `%USERPROFILE%\.beads\bin\`, add to `PATH`.
-- **macOS**: `curl -L https://github.com/gastownhall/beads/releases/latest/download/beads_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/').tar.gz | tar -xz -C ~/.beads/bin/`
-- **Linux**: same as macOS, `linux_amd64` / `linux_arm64`.
+- **Windows**: `tooling/install-beads.ps1`
+- **macOS / Linux**: `tooling/install-beads.sh`
 
-Verify:
-```bash
-bd --version
+The script downloads the latest release tarball for your OS + architecture, extracts to `~/.beads/bin/`, and (on Windows) adds it to your User PATH.
+
+You can also run it manually before opening Claude:
+```powershell
+pwsh -ExecutionPolicy Bypass -File tooling/install-beads.ps1     # Windows
 ```
+```bash
+bash tooling/install-beads.sh                                     # macOS / Linux
+```
+
+If you **don't** want `bd` (or auto-install fails), the init flow falls back to `docs/ACTIVE_TASKS.md` — a plain markdown checklist — and finishes without crashing.
 
 ## How to use
 

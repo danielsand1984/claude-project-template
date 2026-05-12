@@ -81,27 +81,45 @@ git commit -m "chore: initial scaffold from _template"
 ```
 If the user provided a remote URL, add it and push.
 
-### 3b — Init Beads (if available, else fall back to ACTIVE_TASKS.md)
+### 3b — Init Beads (auto-install if missing, fall back to ACTIVE_TASKS.md as last resort)
 
-**First check whether `bd` is installed** before trying to init:
+**Step 1 — Check whether `bd` is already installed:**
 
 ```bash
 bd --version
 ```
 
-**If `bd` is available** (exit code 0):
+**If `bd` is available** (exit code 0) → jump to "Step 3 — Init" below.
+
+**Step 2 — If `bd` is NOT installed, offer auto-install:**
+
+Ask the user:
+> "Beads (`bd`) is niet geïnstalleerd. Wil je dat ik het nu automatisch installeer? (~37 MB download, gaat naar `~/.beads/bin/`)"
+
+If **yes**, run the bundled install script:
+- **Windows**: `pwsh -ExecutionPolicy Bypass -File tooling/install-beads.ps1`
+- **macOS / Linux**: `bash tooling/install-beads.sh`
+
+After it finishes, verify with `bd --version` again. On Windows the PATH update only applies to **new** terminals — Claude may need to use the full path `~/.beads/bin/bd.exe` for the current session.
+
+If install **succeeds** → go to Step 3.
+
+If install **fails** OR the user said **no** → go to Step 4 (fallback).
+
+**Step 3 — Init (when `bd` is available):**
+
 - Run `bd init --stealth`.
 - `.beads/` is already gitignored.
-- Read `tooling/beads-setup.md` for context, then **delete `tooling/beads-setup.md`**.
+- Read `tooling/beads-setup.md` for context, then **delete** `tooling/beads-setup.md`, `tooling/install-beads.ps1`, `tooling/install-beads.sh`.
 - Create 3 seed issues from the interview — typically "Set up dev environment", "Implement core flow X", "Add CI gate". Use `bd create -t task -p high "..."`.
 - Delete `docs/ACTIVE_TASKS.template.md` — Beads is the task tracker now.
 
-**If `bd` is NOT available** (command not found / non-zero exit):
-- **Do not crash, do not install anything automatically.**
+**Step 4 — Fallback (when `bd` is unavailable):**
+
 - Rename `docs/ACTIVE_TASKS.template.md` → `docs/ACTIVE_TASKS.md` and write the 3 seed tasks there as a markdown checklist.
+- Keep `tooling/beads-setup.md` and `tooling/install-beads.{ps1,sh}` — the user might install `bd` later.
 - Tell the user clearly:
-  > "Beads (`bd`) is niet geïnstalleerd — ik gebruik nu `docs/ACTIVE_TASKS.md` als fallback. Wil je later `bd` installeren (zie `tooling/beads-setup.md`), dan kun je de taken handmatig overzetten met `bd create`."
-- Keep `tooling/beads-setup.md` (don't delete it — user might install bd later).
+  > "Beads is niet geïnstalleerd en auto-install lukte niet (of je koos ervoor over te slaan). Ik gebruik nu `docs/ACTIVE_TASKS.md` als fallback. Wil je later alsnog `bd` installeren, draai `tooling/install-beads.ps1` (Windows) of `tooling/install-beads.sh` (macOS/Linux)."
 - In `CLAUDE.md`, replace any "use `bd`" references with "track tasks in `docs/ACTIVE_TASKS.md` (or migrate to `bd` later)".
 
 ### 3c — Install Claude Code skills / agents
