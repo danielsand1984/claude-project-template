@@ -4,7 +4,13 @@
 FROM node:20.18-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use `npm ci` when a lockfile is present (reproducible), else `npm install`
+# (fresh scaffolds ship without a lockfile — the first run generates it).
+RUN if [ -f package-lock.json ]; then \
+      npm ci; \
+    else \
+      npm install --no-audit --no-fund; \
+    fi
 
 # === dev (hot-reload via volume mount) ================================
 # Used by docker-compose default. App folder is volume-mounted from host

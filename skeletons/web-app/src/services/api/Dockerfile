@@ -5,7 +5,13 @@ FROM node:20.18-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache wget
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use `npm ci` when a lockfile is present (reproducible), else `npm install`
+# (fresh scaffolds ship without a lockfile — the first run generates it).
+RUN if [ -f package-lock.json ]; then \
+      npm ci; \
+    else \
+      npm install --no-audit --no-fund; \
+    fi
 
 # === dev (hot-reload via volume mount) ================================
 # Used by docker-compose default. Source is mounted from host so file
@@ -43,7 +49,12 @@ RUN addgroup -g 10001 -S app && adduser -u 10001 -S -G app app
 
 # Production deps only
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN if [ -f package-lock.json ]; then \
+      npm ci --omit=dev; \
+    else \
+      npm install --omit=dev --no-audit --no-fund; \
+    fi \
+    && npm cache clean --force
 
 # Copy built artifacts
 COPY --from=builder /app/dist ./dist
