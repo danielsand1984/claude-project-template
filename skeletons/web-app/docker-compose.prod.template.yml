@@ -1,0 +1,20 @@
+# Prod-style override. Apply alongside docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+#
+# Switches api + web to the `runtime` build target (built images, no
+# source volumes), and uses production env defaults.
+
+services:
+  api:
+    build:
+      target: runtime
+    environment:
+      NODE_ENV: production
+    volumes: []   # drop dev source mounts
+
+  web:
+    build:
+      target: runtime
+    environment:
+      NODE_ENV: production
+    volumes: []

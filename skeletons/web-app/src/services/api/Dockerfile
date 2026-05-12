@@ -1,15 +1,40 @@
 # syntax=docker/dockerfile:1.7
 
-# --- builder ---
-FROM node:20.18-alpine AS builder
+# === deps (cached npm install layer) ==================================
+FROM node:20.18-alpine AS deps
 WORKDIR /app
+RUN apk add --no-cache wget
 COPY package.json package-lock.json* ./
 RUN npm ci
-COPY tsconfig.json ./
-COPY src ./src
-RUN npm run build
 
-# --- runtime ---
+# === dev (hot-reload via volume mount) ================================
+# Used by docker-compose default. Source is mounted from host so file
+# changes trigger tsx watch reload. node_modules lives in a named volume
+# (faster than bind mount on Windows/Mac, avoids OS-specific binary issues).
+FROM node:20.18-alpine AS dev
+WORKDIR /app
+RUN apk add --no-cache wget
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json* ./
+COPY tsconfig.json ./
+# src/ is mounted via compose at runtime; this COPY is a fallback for
+# `docker run` without volumes so the image is at least functional.
+COPY src ./src
+EXPOSE 3000
+ENV NODE_ENV=development
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/healthz || exit 1
+CMD ["npx", "tsx", "watch", "src/index.ts"]
+
+# === builder (compile TypeScript for prod) ============================
+FROM node:20.18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json* tsconfig.json ./
+COPY src ./src
+RUN npx tsc -p tsconfig.json
+
+# === runtime (prod) ===================================================
 FROM node:20.18-alpine AS runtime
 WORKDIR /app
 
@@ -29,6 +54,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget -qO- http://localhost:3000/healthz || exit 1
 
-# Handle SIGTERM cleanly via tini
 ENV NODE_ENV=production
 CMD ["node", "dist/index.js"]

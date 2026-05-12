@@ -12,23 +12,52 @@ What's inside:
 - **Container / K8s-ready out of the box** — every service ships a multi-stage `Dockerfile`, `/healthz` + `/readyz` endpoints, graceful SIGTERM handling, full-stack `docker-compose.yml`, and Kubernetes manifest stubs with probes, resource limits, and non-root securityContext
 - **CI / lint / format** — GitHub Actions, EditorConfig, VSCode settings
 
-## Prerequisites
+## Quickstart for non-developers (zero-tech path)
+
+If you just want to "vibe code" a web app and don't know what Node or Postgres are: this is your route. You only need two things installed:
+
+1. **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** — handles all the backend stuff (Postgres, Redis, the api, the web frontend) in containers. One install, no version conflicts.
+2. **[Claude Code](https://claude.com/claude-code)** — your AI collaborator.
+
+Then:
+
+```bash
+# Download the template (no git knowledge needed)
+npx degit danielsand1984/claude-project-template my-app
+cd my-app
+```
+
+Then **double-click `start.cmd`** (Windows) or **`start.command`** (macOS). It will:
+- Check Docker is running
+- Copy `.env.example` → `.env`
+- Build + start all containers (3-5 min on first run)
+- Open `http://localhost:3002` in your browser
+
+That's it. No Node install, no Postgres install, no terminal commands beyond the one `degit` line. Edit code in the `src/` folder — changes hot-reload in your browser.
+
+Open Claude Code in the folder and say "Initialiseer dit project — volg `START_HERE.md`" to start building real features.
+
+---
+
+## Prerequisites (for the developer-friendly path)
 
 **Required:**
 
 | Tool | For | Install |
 |---|---|---|
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Runs the full stack via `docker compose up` | one-click installer |
 | [Claude Code](https://claude.com/claude-code) | The interview-driven init flow | follow Anthropic install docs |
 | `git` | Version control | system package manager |
-| Node 20+ or Python 3.11+ | Depending on the skeleton you pick | nvm / pyenv / system |
 
-**Optional (template falls back gracefully when missing):**
+**Optional — only needed if you want to run things outside Docker:**
 
-| Tool | What you gain | What you lose without it |
-|---|---|---|
-| **Beads (`bd`)** | First-class task tracker with dependency graph | Fall back to a markdown checklist in `docs/ACTIVE_TASKS.md` |
-| `gh` (GitHub CLI) | One-command repo creation from template | Just use `git clone` or `degit` |
-| `npx` | `degit` for clean downloads without git history | Use clone + `rm -rf .git` |
+| Tool | What you gain |
+|---|---|
+| Node 20+ | Run `npm install` / `npm run dev` directly on the host |
+| Python 3.11+ | Run Python workers directly on the host (CLI skeletons) |
+| **Beads (`bd`)** | First-class task tracker; the template falls back to `docs/ACTIVE_TASKS.md` when absent |
+| `gh` (GitHub CLI) | One-command repo creation from template |
+| `npx` | `degit` for clean downloads without git history |
 
 Graphify is bundled with Claude Code as a custom skill — no separate install needed.
 

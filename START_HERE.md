@@ -87,7 +87,10 @@ Based on the interview, pick **one** primary skeleton from `skeletons/`:
 11. **Fix the test stub import** (cli-python only): update `tests/test_hello.py` to import from your renamed package.
 12. **Customize `docs/coding-principles.md`** if any rule doesn't apply (e.g. drop the `org_id` rule for a single-user CLI).
 13. **Container / k8s readiness** (mandatory for `web-app` / `api`, optional for `cli-*` / `library`):
-    - Verify every service in `src/services/` and `src/workers/` has a `Dockerfile` + `.dockerignore`. Skeleton ships these for web-app.
+    - **Docker-first dev**: the web-app skeleton runs entirely in containers via `docker compose up` — no local Node/Postgres/Redis needed. Source mounts give hot-reload. Power users can still `npm run dev` if they prefer local Node.
+    - Verify every service in `src/services/` and `src/workers/` has a `Dockerfile` + `.dockerignore`. Skeleton ships these for web-app with `dev` and `runtime` build targets.
+    - **`start.cmd` / `start.command` / `start.sh`** are the zero-tech launchers — double-click and the stack comes up. Confirm they reference the right project name in the banner.
+    - **`docker-compose.yml`** is dev-first (volume mounts, `target: dev`, migrate one-shot service). **`docker-compose.prod.yml`** overrides to prod-style for local prod testing.
     - For Next.js: `output: 'standalone'` is already set in `next.config.ts`.
     - Rename `WORKER_NAME` placeholder in `ops/infra/k8s/worker-deployment.yml` per worker you have, OR delete the file if no workers.
     - Replace `REGISTRY` and `TAG` in `ops/infra/k8s/*-deployment.yml` with your container registry + tag strategy.

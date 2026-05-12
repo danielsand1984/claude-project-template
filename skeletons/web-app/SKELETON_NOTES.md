@@ -69,14 +69,40 @@ package.json                # Root scripts: dev, build, test, migrate
 
 ## Container / k8s readiness (mandatory)
 
-This skeleton ships with everything needed to run in Docker and deploy to Kubernetes. Don't strip it unless the project is a one-off script.
+This skeleton ships **Docker-first**: `docker compose up` runs the full stack with hot-reload, **no local Node/Postgres/Redis install needed**. Power users can still run `npm run dev` if they have Node locally.
 
-- **Dockerfiles** in `src/services/api/`, `src/web-portal/`, `src/workers/` — multi-stage, non-root, pinned base images.
-- **`docker-compose.yml`** brings up the full stack (Postgres + Redis + api + web). Uncomment the worker block per worker you add.
-- **K8s manifests** in `ops/infra/k8s/` — one Deployment per service, liveness on `/healthz`, readiness on `/readyz` (or heartbeat for workers), resource limits, non-root securityContext.
-- **`/healthz` + `/readyz`** are already wired in `src/services/api/src/routes/health.ts`.
-- **Graceful shutdown** is already wired in `src/services/api/src/index.ts` — handles SIGTERM with a drain timeout.
-- Next.js standalone output is already set in `next.config.ts`.
+### Dev mode (the default)
+
+```bash
+docker compose up                      # full stack, hot-reload
+# or just double-click start.cmd (Windows) / start.command (macOS) / bash start.sh (Linux)
+```
+
+What happens:
+1. Postgres + Redis start in containers with healthchecks.
+2. A one-shot `migrate` service runs `ops/scripts/migrate.mjs` against Postgres and exits.
+3. `api` (Express + tsx watch) starts on `:3000`, hot-reloads on source change.
+4. `web` (Next.js dev mode) starts on `:3002`, fast-refresh on source change.
+
+Volume mounts: host `src/` is mounted into each container so editing locally triggers reload. `node_modules` lives in named volumes (perf + avoids OS-binary mismatch).
+
+### Prod-style local run
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+```
+
+Switches api + web to the multi-stage `runtime` target — built images, no source mounts, runs as non-root. Same shape as what gets deployed to k8s.
+
+### What ships
+
+- **Dockerfiles** with `dev` + `runtime` targets in `src/services/api/`, `src/web-portal/`, `src/workers/` — multi-stage, non-root, pinned base images.
+- **`docker-compose.yml`** dev-first; **`docker-compose.prod.yml`** override for prod-style.
+- **`start.cmd` / `start.command` / `start.sh`** — one-click launchers (auto-copy `.env.example` → `.env`, check Docker, build, open browser).
+- **K8s manifests** in `ops/infra/k8s/` — one Deployment per service, liveness on `/healthz`, readiness on `/readyz`, resource limits, non-root securityContext.
+- **`/healthz` + `/readyz`** wired in `src/services/api/src/routes/health.ts`.
+- **Graceful SIGTERM shutdown** in `src/services/api/src/index.ts`.
+- Next.js standalone output set in `next.config.ts`.
 
 ## Container / k8s readiness (mandatory)
 

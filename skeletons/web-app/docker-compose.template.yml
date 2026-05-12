@@ -1,3 +1,10 @@
+# Dev-first docker-compose. `docker compose up` brings up the full stack
+# with hot-reload, runs migrations automatically, and lets you edit code
+# locally without installing Node/Postgres/Redis.
+#
+# For a prod-style run (built images, no source mounts):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
 services:
   postgres:
     image: postgres:16
@@ -25,33 +32,81 @@ services:
       timeout: 3s
       retries: 10
 
+  # One-shot DB migration. Runs once at startup, waits for postgres healthy,
+  # exits 0 on success. The `api` service waits for this to complete.
+  migrate:
+    image: node:20.18-alpine
+    working_dir: /workspace
+    volumes:
+      - ./ops:/workspace/ops:ro
+      - migrate-modules:/workspace/node_modules
+    command:
+      - sh
+      - -c
+      - >
+        if [ ! -d node_modules/pg ]; then npm install --no-save --silent pg; fi &&
+        node ops/scripts/migrate.mjs
+    environment:
+      DATABASE_URL: postgres://{{PROJECT_NAME}}:{{PROJECT_NAME}}@postgres:5432/{{PROJECT_NAME}}
+      MIGRATIONS_DIR: /workspace/ops/infra/db/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   api:
     build:
       context: ./src/services/api
       dockerfile: Dockerfile
+      target: dev
     environment:
       DATABASE_URL: postgres://{{PROJECT_NAME}}:{{PROJECT_NAME}}@postgres:5432/{{PROJECT_NAME}}
       REDIS_URL: redis://redis:6379
       PORT: "3000"
+      NODE_ENV: development
+      CORS_ORIGINS: http://localhost:3002
+      AUTH_MODE: dev
     ports:
       - "3000:3000"
+    volumes:
+      # Hot-reload: host source overrides image source. tsx watch picks it up.
+      - ./src/services/api/src:/app/src
+      - ./src/services/api/tsconfig.json:/app/tsconfig.json:ro
+      # Named volume for node_modules — avoids OS-binary mismatch + perf hit.
+      - api-modules:/app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   web:
     build:
       context: ./src/web-portal
       dockerfile: Dockerfile
+      target: dev
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3000
       PORT: "3002"
+      NODE_ENV: development
     ports:
       - "3002:3002"
+    volumes:
+      - ./src/web-portal/app:/app/app
+      - ./src/web-portal/components:/app/components
+      - ./src/web-portal/lib:/app/lib
+      - ./src/web-portal/public:/app/public
+      - ./src/web-portal/next.config.ts:/app/next.config.ts:ro
+      - ./src/web-portal/tailwind.config.ts:/app/tailwind.config.ts:ro
+      - ./src/web-portal/postcss.config.mjs:/app/postcss.config.mjs:ro
+      - ./src/web-portal/tsconfig.json:/app/tsconfig.json:ro
+      - web-modules:/app/node_modules
+      - web-next:/app/.next
     depends_on:
-      - api
+      api:
+        condition: service_started
 
   # Add one block per Python worker. Build context is the worker's folder,
   # which must contain its own Dockerfile + requirements.txt.
@@ -68,6 +123,12 @@ services:
   #       condition: service_healthy
   #     redis:
   #       condition: service_healthy
+  #     migrate:
+  #       condition: service_completed_successfully
 
 volumes:
   postgres-data:
+  api-modules:
+  web-modules:
+  web-next:
+  migrate-modules:

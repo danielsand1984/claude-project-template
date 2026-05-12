@@ -20,7 +20,10 @@ import pg from 'pg';
 
 const { Client } = pg;
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const MIGRATIONS_DIR = join(__dirname, '..', 'infra', 'db', 'migrations');
+// In Docker we set MIGRATIONS_DIR explicitly. Locally fall back to the
+// repo layout (ops/scripts/migrate.mjs reads from ops/infra/db/migrations/).
+const MIGRATIONS_DIR =
+  process.env.MIGRATIONS_DIR ?? join(__dirname, '..', 'infra', 'db', 'migrations');
 
 const SCHEMA_MIGRATIONS_SQL = `
   CREATE TABLE IF NOT EXISTS schema_migrations (

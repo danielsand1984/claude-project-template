@@ -1,12 +1,28 @@
 # syntax=docker/dockerfile:1.7
 
-# --- deps ---
+# === deps =============================================================
 FROM node:20.18-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# --- builder ---
+# === dev (hot-reload via volume mount) ================================
+# Used by docker-compose default. App folder is volume-mounted from host
+# so Next's fast refresh works. node_modules + .next stay in named volumes.
+FROM node:20.18-alpine AS dev
+WORKDIR /app
+RUN apk add --no-cache wget
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+ENV PORT=3002
+EXPOSE 3002
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD wget -qO- http://localhost:3002/ || exit 1
+CMD ["npx", "next", "dev", "-p", "3002"]
+
+# === builder ==========================================================
 FROM node:20.18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -14,7 +30,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# --- runtime ---
+# === runtime (prod) ===================================================
 FROM node:20.18-alpine AS runtime
 WORKDIR /app
 
@@ -33,6 +49,6 @@ USER nextjs
 EXPOSE 3002
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3002/api/health || exit 1
+  CMD wget -qO- http://localhost:3002/ || exit 1
 
 CMD ["node", "server.js"]
